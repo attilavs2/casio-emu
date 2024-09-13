@@ -23,9 +23,11 @@ struct SR_parts {
   u32 reserved_2 : 1;
 };
 
+//Fcalva : MAC.L depends on current reg order
+
 typedef struct {
   union {
-    u32 regArray[16 + 8 + 27];
+    u32 regArray[16 + 8 + 27 + 1];
     struct {
       u32 r0;
       u32 r1;
@@ -90,6 +92,10 @@ typedef struct {
       u32 a1g;
       u32 m0;
       u32 m1;
+
+      //Fcalva : Doc doesn't mention the ldst much so i assumed it was separate
+      //         of the SR
+      u32 LDST;
     };
   };
 } CpuRegisters;

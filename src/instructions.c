@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "cpu.h"
+#include "int.h"
 #include "memory/memory.h"
 #include "config.h"
 
@@ -68,8 +69,8 @@ u32 clrt(u16 instr, u32 src, u32 dst) {
 }
 
 u32 clrmac(u16 instr, u32 src, u32 dst) {
-  printf("clrmac: not implemented\n");
-  exit(1);
+  cpu.reg.MACL = 0;
+  cpu.reg.MACH = 0;
   return dst;
 }
 
@@ -344,9 +345,10 @@ u32 addc(u16 instr, u32 src, u32 dst) {
 }
 
 u32 addv(u16 instr, u32 src, u32 dst) {
-  printf("addv: not implemented\n");
-  exit(1);
-  return dst;
+  u64 temp = src + dst;
+  if(temp > 0x7FFFFFFF)
+    cpu.reg.SR_parts.T = 1;
+  return temp & 0xFFFFFFFF;
 }
 
 u32 and(u16 instr, u32 src, u32 dst) {
@@ -704,9 +706,10 @@ u32 subc(u16 instr, u32 src, u32 dst) {
 }
 
 u32 subv(u16 instr, u32 src, u32 dst) {
-  printf("subv: not implemented\n");
-  exit(1);
-  return dst;
+  uint64_t temp = dst - src;
+  if(temp > 0xFFFFFFFF)
+    cpu.reg.SR_parts.T = 1;
+  return temp;
 }
 
 u32 swap(u16 instr, u32 src, u32 dst) {
@@ -788,8 +791,10 @@ u32 tas(u16 instr, u32 src, u32 dst) {
 }
 
 u32 mac(u16 instr, u32 src, u32 dst) {
-  printf("mac: not implemented\n");
-  exit(1);
+  i64 MAC = cpu.reg.MACL + ((i64)cpu.reg.MACH << 32);
+  MAC += (i32)src*(i32)dst;
+  cpu.reg.MACH = (MAC & 0xFFFFFFFF00000000)>>32;
+  cpu.reg.MACL =  MAC & 0x00000000FFFFFFFF;
   return dst;
 }
 
@@ -863,15 +868,24 @@ u32 trapa(u16 instr, u32 src, u32 dst) {
 }
 
 u32 movco(u16 instr, u32 src, u32 dst) {
-  printf("movco: not implemented\n");
-  exit(1);
+  cpu.reg.SR_parts.T =  cpu.reg.LDST & 1;
+  if(cpu.reg.SR_parts.T)
+    //Do as a regular mov
+    dst = src;
+
+  cpu.reg.LDST = 0;
+
   return dst;
 }
 
 u32 movli(u16 instr, u32 src, u32 dst) {
-  printf("movli: not implemented\n");
-  exit(1);
-  return dst;
+  cpu.reg.LDST = 1;
+  //Fcalva : Best guess as to what it should do ? I haven't got the time to
+  //        figure out the emulator's interrupt system
+  if(cpu.interruptPending)
+    cpu.reg.LDST = 0;
+
+  return src;
 }
 
 u32 movua(u16 instr, u32 src, u32 dst) {
