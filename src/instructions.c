@@ -345,10 +345,14 @@ u32 addc(u16 instr, u32 src, u32 dst) {
 }
 
 u32 addv(u16 instr, u32 src, u32 dst) {
-  u64 temp = src + dst;
-  if(temp > 0x7FFFFFFF)
+  cpu.reg.SR_parts.T = 0;
+  bool srcf = src < 0;
+  srcf += dst < 0;
+  i32 temp = src + dst;
+  if(srcf != 1 && temp < 0){
     cpu.reg.SR_parts.T = 1;
-  return temp & 0xFFFFFFFF;
+  }
+  return temp;
 }
 
 u32 and(u16 instr, u32 src, u32 dst) {
@@ -706,9 +710,13 @@ u32 subc(u16 instr, u32 src, u32 dst) {
 }
 
 u32 subv(u16 instr, u32 src, u32 dst) {
-  uint64_t temp = dst - src;
-  if(temp > 0xFFFFFFFF)
-    cpu.reg.SR_parts.T = 1;
+  cpu.reg.SR_parts.T = 0;
+  bool srcf = src < 0;
+  srcf += dst < 0;
+  i32 temp = dst - src;
+  if(srcf == 1 && temp < 0){
+    cpu.reg.SR_parts.T = 0;
+  }
   return temp;
 }
 
