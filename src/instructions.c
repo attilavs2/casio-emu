@@ -349,7 +349,7 @@ u32 addv(u16 instr, u32 src, u32 dst) {
   bool srcf = src < 0;
   srcf += dst < 0;
   i32 temp = src + dst;
-  if(srcf != 1 && temp < 0){
+  if(srcf != 1 && temp > 0){
     cpu.reg.SR_parts.T = 1;
   }
   return temp;
@@ -714,7 +714,7 @@ u32 subv(u16 instr, u32 src, u32 dst) {
   bool srcf = src < 0;
   srcf += dst < 0;
   i32 temp = dst - src;
-  if(srcf == 1 && temp < 0){
+  if(srcf == 1){
     cpu.reg.SR_parts.T = 0;
   }
   return temp;
