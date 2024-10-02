@@ -876,24 +876,15 @@ u32 trapa(u16 instr, u32 src, u32 dst) {
 }
 
 u32 movco(u16 instr, u32 src, u32 dst) {
-  cpu.reg.SR_parts.T =  cpu.reg.LDST & 1;
-  if(cpu.reg.SR_parts.T)
-    //Do as a regular mov
-    dst = src;
-
-  cpu.reg.LDST = 0;
-
+  printf("movco: not implemented\n");
+  exit(1);
   return dst;
 }
 
 u32 movli(u16 instr, u32 src, u32 dst) {
-  cpu.reg.LDST = 1;
-  //Fcalva : Best guess as to what it should do ? I haven't got the time to
-  //        figure out the emulator's interrupt system
-  if(cpu.interruptPending)
-    cpu.reg.LDST = 0;
-
-  return src;
+  printf("movli: not implemented\n");
+  exit(1);
+  return dst;
 }
 
 u32 movua(u16 instr, u32 src, u32 dst) {
